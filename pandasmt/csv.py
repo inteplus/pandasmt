@@ -20,10 +20,10 @@ def metadata(df):
             metadata describing the dataframe
     '''
     meta = {}
-    if list(df.index.names) != [None]: # has index
+    if list(df.index.names) != [None]:  # has index
         index_names = list(df.index.names)
         df = df.reset_index(drop=False)
-    else: # no index
+    else:  # no index
         index_names = []
 
     meta = {}
@@ -33,7 +33,8 @@ def metadata(df):
         if name != 'category':
             meta[x] = name
         else:
-            meta[x] = ['category', df[x].cat.categories.tolist(), df[x].cat.ordered]
+            meta[x] = ['category', df[x].cat.categories.tolist(),
+                       df[x].cat.ordered]
     meta = {'columns': meta, 'index_names': index_names}
     return meta
 
@@ -58,10 +59,10 @@ def read_csv(path, **kwargs):
     with _p.lock(path, to_write=False):
         # If '.meta' file exists, assume our format and therefore use dask to read. Otherwise, assume general csv file and use pandas to read.
         path2 = path[:-4]+'.meta'
-        if not _p.exists(path2): # no meta
-            if _p.getsize(path) >= (1 << 25): # >= 32MB?
-                try: # try to load in parallel using dask
-                    return _dd.read_csv(path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs)
+        if not _p.exists(path2):  # no meta
+            if _p.getsize(path) >= (1 << 25):  # >= 32MB?
+                try:  # try to load in parallel using dask
+                    return _dd.read_csv(path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs).compute()
                 except:
                     pass
             return _pd.read_csv(path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs)
@@ -82,7 +83,8 @@ def read_csv(path, **kwargs):
 
         # Try dask. If it fails, try pandas.
         try:
-            df = _dd.read_csv(path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs).compute()
+            df = _dd.read_csv(
+                path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs).compute()
         except:
             df = _pd.read_csv(path, quoting=_csv.QUOTE_NONNUMERIC, **kwargs)
 
@@ -102,7 +104,8 @@ def read_csv(path, **kwargs):
                 df[x] = df[x].astype(_np.float64)
             elif y == 'bool':
                 # dd is very strict at reading a csv. It may read True as 'True' and False as 'False'.
-                df[x] = df[x].replace('True', True).replace('False', False).astype(_np.bool)
+                df[x] = df[x].replace('True', True).replace(
+                    'False', False).astype(_np.bool)
             elif y == 'object':
                 pass
             else:
@@ -113,7 +116,10 @@ def read_csv(path, **kwargs):
             df = df.set_index(index_col, drop=True)
 
         return df
+
+
 read_csv.__doc__ = _dd.read_csv.__doc__
+
 
 def to_csv(df, path, **kwargs):
     '''Write DataFrame to a comma-separated values (csv) file. Other than the first argument being the dataframe to be written to, the remaining arguments are passed directly to `DataFrame.to_csv()` function.\n''' + _pd.DataFrame.to_csv.__doc__
