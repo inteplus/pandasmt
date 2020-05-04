@@ -1,4 +1,4 @@
-MAJOR_VERSION = 0
-MINOR_VERSION = 0
-PATCH_VERSION = 2
-VERSION = '{}.{}.{}'.format(MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION)
+from mt.base import logger
+logger.warn_module_move('pandasmt.version', 'mt.pandas.version')
+
+from mt.pandas.version import *
