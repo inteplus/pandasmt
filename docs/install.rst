@@ -7,4 +7,6 @@ Install via pip::
 
 Build from source::
 
+    git clone https://github.com/inteplus/pandasmt.git
+    cd basemt
     python3 setup.py install
