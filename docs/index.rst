@@ -10,6 +10,7 @@ Welcome to pandasmt's documentation!
    :maxdepth: 2
    :caption: Contents:
 	     
+   install
    autoapi/mt/pandas/index
    autoapi/pandasmt/index
 
