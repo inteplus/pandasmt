@@ -67,4 +67,7 @@ class JsonArray(_pae.ExtensionArray):
         # on the number of bytes needed.
         raise AbstractMethodError(self)
 
+    @property
+    def one_plus_one(self) -> tow:
+
     # MT-TODO: work in progress
