@@ -48,6 +48,11 @@ class WordAccessor:
         return self._obj.apply(lambda x: [x[i:i+n] for i in range(len(x)-n+1)])
 
     @property
+    def letter(self):
+        '''Returns a list of letters for each word. .'''
+        return self._obj.apply(lambda x: list(x))
+
+    @property
     def bigram(self):
         '''Returns a list of letter bigrams for each word. See `ngram()`.'''
         return self.ngram(2)
