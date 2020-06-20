@@ -4,7 +4,7 @@
 import pandas.api.extensions as _pae
 
 
-@_pae.register_series_accessor("ndarray")
+@_pae.register_series_accessor("word")
 class WordAccessor:
     '''Accessor for word fields.'''
 
@@ -21,25 +21,31 @@ class WordAccessor:
         '''Returns which item is like a Vietnamese word'''
         return self._obj.str.match("[a-zA-ZàáảãạâầấẩẫậăằắẳẵặđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶĐÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ]+$")
 
-    @property
     def ngram(self, n):
         '''Returns a list letter n-grams for each word.
 
         Parameters
         ----------
         n : int
-            number n specifying the letter n-gram
+            number n specifying the letter n-gram. Must be integer greater than 1.
         
         Returns
         -------
         pandas.Series
             each element of the returning series is a list of n-grams of the corresponding element in the input series
+
+        Raises
+        ------
+        ValueError
+            if an argument is wrong
         
         Notes
         -----
         You can use pandas' explode() function to process further.
         '''
-        return self._obj.apply(lambda x: [x[i:i+2] for i in range(len(x)-1)])
+        if not isinstance(n, int) or n < 2:
+            raise ValueError("Expected n to be integer greater than 1, given {}.".format(n))
+        return self._obj.apply(lambda x: [x[i:i+n] for i in range(len(x)-n+1)])
 
     @property
     def bigram(self):
