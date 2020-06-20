@@ -95,32 +95,3 @@ def to_categorical(series, value_list, missing_values='raise_exception', logger=
     df['one_hot'] = df['cat_id'].map(eye_list)
 
     return df.drop('cat', axis=1)
-
-
-def is_wordlike(series, lang='en'):
-    '''Checks if every element of a series is like an English word or a Vietnamese word.
-
-    We use a simple regex to make sure that every letter is English/Vietnamese. No dictionary is used.
-
-    Parameters
-    ----------
-    series : pd.Series
-        input string series
-    lang : {'en', 'vi'}
-        language from which the word comes
-
-    Returns
-    -------
-    pd.Series
-        output bool series whether an element is like an English/Vietnamese word or not
-
-    Raises
-    ------
-    ValueError
-        if some argument is wrong
-    '''
-    if lang=='en':
-        return series.str.match("[a-zA-Z]+$")
-    if lang=='vi':
-        return series.str.match("[a-zA-ZàáảãạâầấẩẫậăằắẳẵặđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶĐÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ]+$")
-    raise ValueError("Unknown language '{}'".format(lang))
