@@ -184,13 +184,3 @@ class WordAccessor:
     def trigram(self):
         '''Returns a list of letter trigrams for each word. See `ngram()`.'''
         return self.ngram(3)
-
-
-    def move_to_end(self, substr):
-        '''Moves the first occurence of a substring to the end.'''
-        def work(s):
-            i = s.find(substr)
-            if i == -1:
-                return s
-            return s[:i]+s[i+len(substr):]+substr
-        return self._obj.apply(work)
