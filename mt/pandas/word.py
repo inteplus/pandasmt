@@ -5,6 +5,14 @@ import pandas.api.extensions as _pae
 import re as _re
 
 
+def _construct_vi_vowel_tone_inverse_map(vi_vowel_tones, vi_vowel_tone_map):
+    res = {}
+    for key in vi_vowel_tones:
+        for i, ch in enumerate(vi_vowel_tones[key]):
+            res[ch] = key+vi_vowel_tone_map[i]
+    return res
+
+
 @_pae.register_series_accessor("word")
 class WordAccessor:
     '''Accessor for word fields.'''
@@ -16,6 +24,16 @@ class WordAccessor:
     vi_extended_letters = {
         "lower": "ăâđêôơư",
         "upper": "ĂÂĐÊÔƠƯ"
+    }
+
+    vi_extended_letter_map = {
+        "ă": "a{",
+        "â": "a}",
+        "đ": "d-",
+        "ê": "e^",
+        "ô": "o]",
+        "ơ": "o[",
+        "ư": "u+",        
     }
 
     vi_vowel_tones = {
@@ -45,12 +63,34 @@ class WordAccessor:
         "Y": "ỲÝỶỸỴ"
     }
 
+    vi_vowel_tone_map = "`'?~."
+
+    vi_vowel_tone_inverse_map = _construct_vi_vowel_tone_inverse_map(vi_vowel_tones, vi_vowel_tone_map)
+
 
     # ----- constructor -----
 
     
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
+
+
+    # ----- useful methods -----
+
+
+    def sub_map(self, substr_map):
+        '''Substitutes substrings using a dictionary/map.
+
+        For each substring of a word, the substring is replaced with a replacement string.
+
+        Parameters
+        ----------
+        substr_map : dict
+            a map that maps each substring into a replacement string
+        '''
+        pat = _re.compile("|".join(substr_map.keys()))
+        repl = lambda m: substr_map[m.group(0)]
+        return self._obj.str.replace(pat, repl)
 
 
     # ----- properties -----
@@ -70,13 +110,27 @@ class WordAccessor:
 
     
     @property
+    def split_vi_tone(self):
+        '''Splits any Vietnamese toned letter into its base letter followed by a symbol representing the tone mark (`'?~.), in each word.'''
+        return self.sub_map(self.vi_vowel_tone_inverse_map)
+
+    @property
+    def split_vi_diacritical(self):
+        '''Splits any untoned diacritical Vietnamese letter into its base letter followed by a symbol representing the diacritical mark, in each word.'''
+        return self.sub_map(self.vi_extended_letter_map)
+
+    @property
+    def move_vi_tone_to_last(self):
+        '''Moves the first tone mark to the end of a word.'''
+        return self._obj.str.replace("([^\`\'\?\~\.]*)([\`\'\?\~\.])(.*)", lambda x: x.group(1)+x.group(3)+x.group(2))
+        
+
+    
+    @property
     def remove_vietnamese_tone(self):
         '''Removes the tone marks in each Vietnamese word.'''
-        
         rep = {c:k for k,v in self.vi_vowel_tones.items() for c in v}
-        pat = _re.compile("|".join(rep.keys()))
-        repl = lambda m: rep[m.group(0)]
-        return self._obj.str.replace(pat, repl)
+        return self.sub_map(rep)
 
     @property
     def extract_vietnamese_tone(self):
@@ -130,3 +184,13 @@ class WordAccessor:
     def trigram(self):
         '''Returns a list of letter trigrams for each word. See `ngram()`.'''
         return self.ngram(3)
+
+
+    def move_to_end(self, substr):
+        '''Moves the first occurence of a substring to the end.'''
+        def work(s):
+            i = s.find(substr)
+            if i == -1:
+                return s
+            return s[:i]+s[i+len(substr):]+substr
+        return self._obj.apply(work)
