@@ -6,6 +6,8 @@
 Welcome to pandasmt's documentation!
 ====================================
 
+This package has been deprecated. Please use package 'mtpandas' instead.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

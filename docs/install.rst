@@ -1,6 +1,8 @@
 Installation
 ============
 
+This package has been deprecated. Please use package 'mtpandas' instead.
+
 Install via pip::
 
     pip3 install pandasmt
