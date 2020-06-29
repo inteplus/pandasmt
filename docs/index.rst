@@ -11,7 +11,6 @@ Welcome to pandasmt's documentation!
    :caption: Contents:
 	     
    install
-   autoapi/mt/pandas/index
    autoapi/pandasmt/index
 
    
